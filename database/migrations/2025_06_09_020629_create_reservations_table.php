@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('reservations', function (Blueprint $table) {
-            $table->id('id_reservation');
-            $table->foreign('id_Customer')->references('id_Customer')->on('Customers');
+            $table->id();
+            $table-> foreignId('Customer_id');
+            $table-> date('reservation_date');
+            $table-> double('number_people');
             $table->timestamps();
         });
     }

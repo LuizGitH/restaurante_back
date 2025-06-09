@@ -17,7 +17,9 @@ class ReservationFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_customer' => \App\Models\Customer::factory(),
+            'Customer_id' => $this->faker->numberBetween(1, 20),
+            'Reservation_date' => $this->faker->date(),
+            'number_people' => $this->faker->numberBetween(1, 10),
         ];
     }
 }
