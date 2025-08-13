@@ -7,11 +7,13 @@ use App\Http\Resources\V1\DishResource;
 use App\Http\Resources\V1\UserResource;
 use App\Models\Dish;
 use App\Models\User;
+use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 class Usercontroller extends Controller
 {
+    use HttpResponses;
     /**
      * Display a listing of the resource.
      */
@@ -31,11 +33,19 @@ class Usercontroller extends Controller
             'phone' => 'required|string|size:11',
             'email' => 'required|email|max:255',
             'CPF' => 'required|string|size:11',
+            'password'  => 'required|string|min:6',
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return $this->error('Data Invalid', 422, $validator->errors());
         }
+
+        $created = User::create($validator->validated());
+
+        if ($created) {
+            return $this->response('User created', 200, $created);
+        }
+        return $this->error('User not create', 400);
     }
 
 
