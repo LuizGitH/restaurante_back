@@ -62,7 +62,36 @@ class Usercontroller extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'full_name' => 'string|required',
+            'address' => 'string|required',
+            'phone' => 'required|string|size:11',
+            'email' => 'required|email|max:255',
+            'CPF' => 'required|string|size:11',
+            'password'  => 'nullable|string|min:6',
+        ]);
+        if ($validator->fails()) {
+            return $this->error('Data Invalid', 422, $validator->errors());
+        }
+
+        $validated = $validator->validated();
+
+        $user = User::find($id);
+        if (!$user) {
+            return $this->error('User not found', 404);
+        }
+        $updated = $user ->update([
+            'full_name' => $validated['full_name'],
+            'address' => $validated['address'],
+            'phone' => $validated['phone'],
+            'email' => $validated['email'],
+            'CPF' => $validated['CPF'],
+        ]);
+
+        if ($updated) {
+            return $this->response('User updated', 200, new UserResource($user));
+        }
+        return $this->error('User not updated', 400);
     }
 
     /**
