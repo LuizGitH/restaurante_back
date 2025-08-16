@@ -104,6 +104,17 @@ class Dishcontroller extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $dishes = Dish::find($id);
+
+        if (!$dishes) {
+            return $this->error('Dish not found', 404);
+        }
+
+        if ($dishes->delete()) {
+            return $this->response('Dish deleted', 200);
+        }
+
+        return $this->error('Dish not deleted', 400);
     }
+
 }
