@@ -19,6 +19,9 @@ class Usercontroller extends Controller
      */
     public function index()
     {
+        if(!auth()->user()->tokenCan('user-get')){
+            return $this->error('Unauthorized', 403);
+        }
         return UserResource::collection(User::all());
     }
 
@@ -54,6 +57,9 @@ class Usercontroller extends Controller
      */
     public function show(string $id)
     {
+        if(!auth()->user()->tokenCan('user-get')){
+            return $this->error('Unauthorized', 403);
+        }
         return new UserResource(User::where('id', $id)->first());
     }
 
