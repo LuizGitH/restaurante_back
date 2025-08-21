@@ -18,7 +18,7 @@ class AuthController extends Controller
     {
         if (Auth::attempt($request->only('email', 'password'))) {
             return $this->response('Authorized',200, [
-                'token' => $request->user()->createToken('Personal Access Token', ['user-get'])->plainTextToken
+                'token' => $request->user()->createToken('Personal Access Token')->plainTextToken
             ]);
         }
         return $this->error('Not Authorized', 403);

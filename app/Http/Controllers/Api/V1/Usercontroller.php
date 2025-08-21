@@ -19,9 +19,6 @@ class Usercontroller extends Controller
      */
     public function index()
     {
-        if(!auth()->user()->tokenCan('user-get')){
-            return $this->error('Unauthorized', 403);
-        }
         return UserResource::collection(User::all());
     }
 
@@ -36,7 +33,6 @@ class Usercontroller extends Controller
             'phone' => 'required|string|size:11',
             'email' => 'required|email|max:255',
             'CPF' => 'required|string|size:11',
-            'password'  => 'required|string|min:6',
         ]);
 
         if ($validator->fails()) {
@@ -57,9 +53,6 @@ class Usercontroller extends Controller
      */
     public function show(string $id)
     {
-        if(!auth()->user()->tokenCan('user-get')){
-            return $this->error('Unauthorized', 403);
-        }
         return new UserResource(User::where('id', $id)->first());
     }
 
@@ -74,7 +67,6 @@ class Usercontroller extends Controller
             'phone' => 'required|string|size:11',
             'email' => 'required|email|max:255',
             'CPF' => 'required|string|size:11',
-            'password'  => 'nullable|string|min:6',
         ]);
         if ($validator->fails()) {
             return $this->error('Data Invalid', 422, $validator->errors());
