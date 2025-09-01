@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\V1\DishResource;
 use App\Http\Resources\V1\UserResource;
 use App\Models\Dish;
 use App\Models\User;
@@ -11,15 +10,16 @@ use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
-class Usercontroller extends Controller
+class UserController extends Controller
 {
     use HttpResponses;
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(User $query)
     {
-        return UserResource::collection(User::all());
+        $user = $query->paginate((int) request('per_page', 150));
+        return UserResource::collection($user);
     }
 
     /**
@@ -51,9 +51,9 @@ class Usercontroller extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(User $user)
     {
-        return new UserResource(User::where('id', $id)->first());
+        return new UserResource($user);
     }
 
     /**

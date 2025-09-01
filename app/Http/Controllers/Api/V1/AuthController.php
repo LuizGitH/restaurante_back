@@ -14,13 +14,5 @@ class AuthController extends Controller
     // 5|dbk6DkNsFN78slulXo42eciwRVdP3J8ZEkJjZ1V21a973ced -> User
     // 6|m7iAdLTJDA2MknRw431SmeQv3e7P48TlxXA8mrL5fcc18226 -> Dish
 
-    public function login(Request $request)
-    {
-        if (Auth::attempt($request->only('email', 'password'))) {
-            return $this->response('Authorized',200, [
-                'token' => $request->user()->createToken('Personal Access Token')->plainTextToken
-            ]);
-        }
-        return $this->error('Not Authorized', 403);
-    }
+
 }

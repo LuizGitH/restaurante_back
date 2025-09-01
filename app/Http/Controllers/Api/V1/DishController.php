@@ -11,15 +11,16 @@ use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
-class Dishcontroller extends Controller
+class DishController extends Controller
 {
     use HttpResponses;
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Dish $query)
     {
-        return DishResource::collection(Dish::all());
+        $dish = $query->paginate((int) request('per_page', 15));
+        return DishResource::collection($dish);
     }
 
     /**
@@ -32,19 +33,30 @@ class Dishcontroller extends Controller
             'description' => 'required|string',
             'price'       => 'required|numeric|min:0',
             'category'    => 'required|string|max:100',
-            'image_path'  => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image_path'  => 'required|image|max:3072',
         ]);
 
         if ($validator->fails()) {
             return $this->error('Data Invalid', 422, $validator->errors());
         }
 
-        $created = Dish::create($validator->validated());
+        // Criar objeto Dish manualmente para poder manipular o upload
+        $dish = new Dish($validator->validated());
 
-        if ($created) {
-            return $this->response('Dish created', 200, $created);
+        // Se veio imagem no request
+        if ($request->hasFile('image_path')) {
+            $arquivo = $request->file('image_path');
+            $nomeArquivo = uniqid() . '.' . $arquivo->getClientOriginalExtension(); // nome único
+            $arquivo->move(public_path('uploads'), $nomeArquivo); // mover para public/uploads
+
+            $dish->image_path = 'uploads/' . $nomeArquivo; // salvar caminho no banco
         }
-        return $this->error('Dish not create', 400);
+
+        if ($dish->save()) {
+            return $this->response('Dish created', 200, $dish);
+        }
+
+        return $this->error('Dish not created', 400);
     }
 
     /**
