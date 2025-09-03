@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\V1\DishController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\AuthController;
 
-Route::post('login', [AuthController::class, 'login']);
 
 // Rotas protegidas
 Route::middleware(['auth:sanctum'])->group(function () {

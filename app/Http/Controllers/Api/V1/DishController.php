@@ -19,7 +19,7 @@ class DishController extends Controller
      */
     public function index(Dish $query)
     {
-        $dish = $query->paginate((int) request('per_page', 15));
+        $dish = $query->paginate((int) request('per_page', 150));
         return DishResource::collection($dish);
     }
 
@@ -87,28 +87,32 @@ class DishController extends Controller
         $validated = $validator->validated();
 
         $dish = Dish::find($id);
-
         if (!$dish) {
             return $this->error('Dish not found', 404);
         }
 
+        // Se enviou nova imagem
         if ($request->hasFile('image_path')) {
-            $path = $request->file('image_path')->store('images', 'public');
-            $validated['image_path'] = $path;
+            // Deleta a antiga se existir
+            if ($dish->image_path && file_exists(public_path($dish->image_path))) {
+                unlink(public_path($dish->image_path));
+            }
+
+            // Salva a nova
+            $arquivo = $request->file('image_path');
+            $nomeArquivo = uniqid() . '.' . $arquivo->getClientOriginalExtension();
+            $arquivo->move(public_path('uploads'), $nomeArquivo);
+
+            $validated['image_path'] = 'uploads/' . $nomeArquivo;
         }
 
-        $updated = $dish ->update([
-            'name' => $validated['name'],
-            'description' => $validated['description'],
-            'price' => $validated['price'],
-            'category' => $validated['category'],
-            'image_path' => $validated['image_path'] ?? null,
-        ]);
+        $updated = $dish->update($validated);
 
         if ($updated) {
-            return $this->response('User updated', 200, new DishResource($dish));
+            return $this->response('Dish updated', 200, new DishResource($dish));
         }
-        return $this->error('User not updated', 400);
+
+        return $this->error('Dish not updated', 400);
     }
 
     /**
@@ -116,17 +120,22 @@ class DishController extends Controller
      */
     public function destroy(string $id)
     {
-        $dishes = Dish::find($id);
+        $dish = Dish::find($id);
 
-        if (!$dishes) {
+        if (!$dish) {
             return $this->error('Dish not found', 404);
         }
 
-        if ($dishes->delete()) {
+        if ($dish->image_path && file_exists(public_path($dish->image_path))) {
+            unlink(public_path($dish->image_path));
+        }
+
+        if ($dish->delete()) {
             return $this->response('Dish deleted', 200);
         }
 
         return $this->error('Dish not deleted', 400);
     }
+
 
 }
